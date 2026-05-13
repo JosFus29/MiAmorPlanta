@@ -3,6 +3,7 @@ import SwiftUI
 struct PlantDetailView: View {
     let plant: Plant
     @Environment(\.dismiss) private var dismiss
+    @ObservedObject private var storage = PlantStorage.shared
     @State private var marked = false
 
     var body: some View {
@@ -39,7 +40,7 @@ struct PlantDetailView: View {
             }
 
             // ── Botón flotante ───────────────────────────────────────
-            Button(action: { withAnimation { marked.toggle() } }) {
+            Button(action: { markAsWatered () }) {
                 HStack(spacing: 8) {
                     Image(systemName: marked ? "checkmark.circle.fill" : "drop.fill")
                     Text(marked ? "¡Regada! 💧" : "Marcar como regada")
@@ -56,6 +57,18 @@ struct PlantDetailView: View {
             .animation(.easeInOut(duration: 0.25), value: marked)
         }
         .navigationBarHidden(true)
+    }
+    // MARK: - Acción regar
+
+    private func markAsWatered() {
+        withAnimation { marked.toggle() }
+
+        if marked {
+            var updated = plant
+            updated.status = .bien
+            updated.daysUntilWatering = 3
+            storage.update(updated)
+        }
     }
 
     // MARK: - Header
@@ -94,6 +107,7 @@ struct PlantDetailView: View {
             }
             .padding(.top, 12)
         }
+        .frame(maxHeight: 200)
     }
 
     // MARK: - Banner sensor
@@ -260,6 +274,7 @@ private struct CareRow: View {
     }
 }
 
+
 #Preview {
     NavigationStack {
         PlantDetailView(plant: Plant(
@@ -277,4 +292,6 @@ private struct CareRow: View {
             daysUntilWatering: 3
         ))
     }
+    
 }
+

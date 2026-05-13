@@ -48,4 +48,11 @@ class PlantStorage: ObservableObject {
     var activeSensors: Int {
         plants.filter { $0.hasSensor }.count
     }
+    // MARK: - Actualizar
+
+    func update(_ plant: Plant) {
+        guard let index = plants.firstIndex(where: { $0.id == plant.id }) else { return }
+        plants[index] = plant
+        save()
+    }
 }

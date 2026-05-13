@@ -95,9 +95,10 @@ struct HomeView: View {
                     )
             }
             .padding(.horizontal, 20)
-            .padding(.top, 10)
-            .padding(.bottom, 14)
+            .padding(.top, 6)
+            .padding(.bottom, 10)
         }
+        .frame(maxHeight: 200)
     }
 
     // MARK: - Alerta sensor
