@@ -69,10 +69,8 @@ struct CuidadosView: View {
                 .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 80)
+            .padding(.bottom, 12)
 
-            // ── Tab bar ──────────────────────────────────────────────
-            tabBar
         }
         .navigationBarHidden(true)
         .alert("Próximamente", isPresented: $showAddSensor) {
@@ -192,45 +190,9 @@ struct CuidadosView: View {
         }
     }
 
-    // MARK: - Tab bar
 
-    private var tabBar: some View {
-        HStack {
-            TabBarItem(icon: "house.fill",     label: "Inicio",   active: false)
-            TabBarItem(icon: "scissors",        label: "Cuidados", active: true)
-            TabBarItem(icon: "bell.fill",       label: "Alertas",  active: false)
-            TabBarItem(icon: "gearshape.fill",  label: "Config",   active: false)
-        }
-        .padding(.horizontal, 24)
-        .padding(.vertical, 12)
-        .background(Color("BgLight"))
-        .overlay(
-            Rectangle()
-                .frame(height: 0.5)
-                .foregroundColor(Color.gray.opacity(0.2)),
-            alignment: .top
-        )
-    }
 }
 
-// MARK: - Tab bar item local
-
-private struct TabBarItem: View {
-    let icon: String
-    let label: String
-    let active: Bool
-
-    var body: some View {
-        VStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.system(size: 20))
-            Text(label)
-                .font(.system(size: 10))
-        }
-        .frame(maxWidth: .infinity)
-        .foregroundColor(active ? Color("PlantDark") : .gray)
-    }
-}
 
 #Preview {
     NavigationStack { CuidadosView() }
