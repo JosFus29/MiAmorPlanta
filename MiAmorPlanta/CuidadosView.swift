@@ -84,27 +84,29 @@ struct CuidadosView: View {
 
     // MARK: - Header
 
+    
+    // Reemplaza headerSection en CuidadosView
     private var headerSection: some View {
         ZStack {
             Color("PlantDark").ignoresSafeArea(edges: .top)
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text("Más Cuidados")
-                        .font(.custom("Georgia-Bold", size: 28))
+                        .font(.custom("Georgia-Bold", size: 22))
                         .foregroundColor(Color("PlantCream"))
 
                     Image(systemName: "leaf.fill")
                         .foregroundColor(Color("PlantAccent"))
-                        .font(.system(size: 16))
+                        .font(.system(size: 13))
                 }
 
                 HStack(spacing: 6) {
                     Circle()
                         .fill(Color("StatusGreen"))
-                        .frame(width: 7, height: 7)
+                        .frame(width: 6, height: 6)
                     Text("\(withSensor.count) activo\(withSensor.count == 1 ? "" : "s")")
-                        .font(.system(size: 12))
+                        .font(.system(size: 11))
                         .foregroundColor(Color("PlantMuted"))
 
                     Text("•")
@@ -112,16 +114,16 @@ struct CuidadosView: View {
 
                     Circle()
                         .fill(Color.gray.opacity(0.5))
-                        .frame(width: 7, height: 7)
+                        .frame(width: 6, height: 6)
                     Text("\(withoutSensor.count) sin señal")
-                        .font(.system(size: 12))
+                        .font(.system(size: 11))
                         .foregroundColor(Color("PlantMuted"))
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
-            .padding(.top, 16)
-            .padding(.bottom, 20)
+            .padding(.top, 10)
+            .padding(.bottom, 14)
         }
     }
 
