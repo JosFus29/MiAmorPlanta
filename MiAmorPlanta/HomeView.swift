@@ -176,7 +176,7 @@ struct HomeView: View {
                 .font(.system(size: 44))
                 .foregroundColor(Color("PlantAccent").opacity(0.4))
 
-            Text("Aún no tienes plantas")
+            Text("Aún no tienes planta")
                 .font(.system(size: 15, weight: .medium))
                 .foregroundColor(Color("TextDark"))
 
