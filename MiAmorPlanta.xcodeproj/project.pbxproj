@@ -6,7 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		FBBD31FC2FC50FC70045554A /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = FBBD31FB2FC50FC70045554A /* FirebaseDatabase */; };
+		FBBD31FE2FC5164B0045554A /* PlantaViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBBD31FD2FC5164B0045554A /* PlantaViewModel.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		FBBD31FD2FC5164B0045554A /* PlantaViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlantaViewModel.swift; sourceTree = "<group>"; };
 		FBD0DAF12FABDE2200103CA2 /* MiAmorPlanta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiAmorPlanta.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -23,6 +29,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FBBD31FC2FC50FC70045554A /* FirebaseDatabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,6 +39,7 @@
 		FBD0DAE82FABDE2100103CA2 = {
 			isa = PBXGroup;
 			children = (
+				FBBD31FD2FC5164B0045554A /* PlantaViewModel.swift */,
 				FBD0DAF32FABDE2200103CA2 /* MiAmorPlanta */,
 				FBD0DAF22FABDE2200103CA2 /* Products */,
 			);
@@ -65,6 +73,7 @@
 			);
 			name = MiAmorPlanta;
 			packageProductDependencies = (
+				FBBD31FB2FC50FC70045554A /* FirebaseDatabase */,
 			);
 			productName = MiAmorPlanta;
 			productReference = FBD0DAF12FABDE2200103CA2 /* MiAmorPlanta.app */;
@@ -95,7 +104,7 @@
 			mainGroup = FBD0DAE82FABDE2100103CA2;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				FBB50AE82FBBA1DA00923BF5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				FBBD31FA2FC50FAC0045554A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = FBD0DAF22FABDE2200103CA2 /* Products */;
@@ -122,6 +131,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FBBD31FE2FC5164B0045554A /* PlantaViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,15 +339,23 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FBB50AE82FBBA1DA00923BF5 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+		FBBD31FA2FC50FAC0045554A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.13.0;
+				kind = exactVersion;
+				version = 10.29.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FBBD31FB2FC50FC70045554A /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FBBD31FA2FC50FAC0045554A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = FBD0DAE92FABDE2100103CA2 /* Project object */;
 }
