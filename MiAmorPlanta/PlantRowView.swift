@@ -7,11 +7,27 @@ struct PlantRowView: View {
         NavigationLink(destination: PlantDetailView(plant: plant)) {
             HStack(spacing: 14) {
 
-                Text(plant.emoji)
-                    .font(.system(size: 32))
+                // Imagen real si viene de API, si no el emoji
+                if let urlStr = plant.imageURL, let url = URL(string: urlStr) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let img):
+                            img.resizable().scaledToFill()
+                        case .empty:
+                            ProgressView().tint(Color("PlantAccent"))
+                        case .failure:
+                            emojiPlaceholder
+                        @unknown default:
+                            emojiPlaceholder
+                        }
+                    }
                     .frame(width: 52, height: 52)
                     .background(Color("PlantAccent").opacity(0.12))
                     .cornerRadius(12)
+                    .clipped()
+                } else {
+                    emojiPlaceholder
+                }
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
@@ -58,6 +74,14 @@ struct PlantRowView: View {
             .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
         }
         .buttonStyle(PlainButtonStyle())
+    }
+
+    private var emojiPlaceholder: some View {
+        Text(plant.emoji)
+            .font(.system(size: 32))
+            .frame(width: 52, height: 52)
+            .background(Color("PlantAccent").opacity(0.12))
+            .cornerRadius(12)
     }
 
     private var statusHint: String {

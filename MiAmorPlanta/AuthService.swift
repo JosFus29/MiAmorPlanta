@@ -10,10 +10,18 @@ class AuthService: ObservableObject {
     @Published var isLoading: Bool = false
 
     init() {
+        // Este listener se dispara al arrancar la app si ya había sesión activa,
+        // y también después de cada login/logout. Es el lugar correcto para
+        // reactivar la escucha de Firebase.
         Auth.auth().addStateDidChangeListener { _, user in
             DispatchQueue.main.async {
                 self.currentUser = user
                 self.isLoggedIn = user != nil
+
+                if user != nil {
+                    // ✅ Hay sesión: (re)conectar escucha de plantas
+                    PlantStorage.shared.listenToFirebase()
+                }
             }
         }
     }
@@ -38,14 +46,15 @@ class AuthService: ObservableObject {
                 changeRequest?.displayName = name
                 changeRequest?.commitChanges { _ in }
 
-                // Guarda localmente para usarlo en la app
-                UserDefaults.standard.set(name, forKey: "account_name")
+                // Guarda localmente
+                UserDefaults.standard.set(name,  forKey: "account_name")
                 UserDefaults.standard.set(email, forKey: "account_email")
-                
+
                 FirebaseService.shared.saveProfile(name: name, email: email)
 
                 self.currentUser = result?.user
                 self.isLoggedIn = true
+                // listenToFirebase() ya se dispara por el stateDidChangeListener ↑
                 completion(true)
             }
         }
@@ -71,6 +80,7 @@ class AuthService: ObservableObject {
 
                 self.currentUser = result?.user
                 self.isLoggedIn = true
+                // listenToFirebase() ya se dispara por el stateDidChangeListener ↑
                 completion(true)
             }
         }

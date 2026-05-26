@@ -8,6 +8,9 @@ struct Plant: Identifiable, Codable {
     var hasSensor: Bool
     var emoji: String
 
+    // Imagen desde API externa
+    var imageURL: String? = nil
+
     // Datos de sensor (solo si hasSensor == true)
     var temperature: Double = 22.0
     var humidity: Int = 18
@@ -51,11 +54,11 @@ enum LightLevel: String, Codable, CaseIterable {
 }
 
 enum WateringDay: String, Codable, CaseIterable {
-    case lun = "Lun"
-    case mar = "Mar"
+    case lun  = "Lun"
+    case mar  = "Mar"
     case mier = "Mier"
-    case jue = "Jue"
-    case vie = "Vie"
-    case sab = "Sáb"
-    case dom = "Dom"
+    case jue  = "Jue"
+    case vie  = "Vie"
+    case sab  = "Sáb"
+    case dom  = "Dom"
 }

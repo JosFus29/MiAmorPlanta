@@ -4,8 +4,7 @@ import FirebaseAuth
 class PlantStorage: ObservableObject {
     static let shared = PlantStorage()
     private init() {
-        load()         // carga local inmediata
-        listenToFirebase() // sincroniza con Firebase
+        load() // carga local inmediata mientras llega Firebase
     }
 
     private let key = "saved_plants"
@@ -26,14 +25,17 @@ class PlantStorage: ObservableObject {
     }
 
     // MARK: - Escuchar Firebase en tiempo real
+    // Llamar DESPUÉS de confirmar que hay sesión activa
     func listenToFirebase() {
-        // Solo escucha si hay usuario autenticado
-        guard Auth.auth().currentUser != nil else { return }
+        guard Auth.auth().currentUser != nil else {
+            print("⚠️ listenToFirebase: sin usuario, abortando")
+            return
+        }
 
         FirebaseService.shared.listenToPlants { [weak self] firebasePlants in
             guard let self = self else { return }
             self.plants = firebasePlants
-            self.save() // guarda localmente también
+            self.save()
         }
     }
 
@@ -44,12 +46,19 @@ class PlantStorage: ObservableObject {
         FirebaseService.shared.savePlant(plant)
     }
 
-    // MARK: - Eliminar
+    // MARK: - Eliminar por IndexSet (usado en listas con swipe)
     func delete(at offsets: IndexSet) {
         let plantsToDelete = offsets.map { plants[$0] }
         plants.remove(atOffsets: offsets)
         save()
         plantsToDelete.forEach { FirebaseService.shared.deletePlant($0) }
+    }
+
+    // MARK: - Eliminar por Plant (usado en PlantDetailView)
+    func delete(plant: Plant) {
+        plants.removeAll { $0.id == plant.id }
+        save()
+        FirebaseService.shared.deletePlant(plant)
     }
 
     // MARK: - Actualizar
