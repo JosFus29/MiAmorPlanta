@@ -8,7 +8,7 @@ struct SensorCardView: View {
     init(plant: Plant) {
         self.plant = plant
         _sensorVM = StateObject(
-            wrappedValue: PlantaViewModel(plantId: "planta_prueba") // ← temporal
+            wrappedValue: PlantaViewModel(plantId:plantID: plant.id.uuidString) // ← temporal
         )
     }
 

@@ -4,7 +4,16 @@ struct PlantDetailView: View {
     let plant: Plant
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var storage = PlantStorage.shared
-    @StateObject private var sensorVM = PlantaViewModel() // ← datos reales del ESP32
+    @StateObject private var sensorVM: PlantaViewModel
+
+    init(plant: Plant) {
+        self.plant = plant
+        _sensorVM = StateObject(
+            wrappedValue: PlantaViewModel(plantId: plant.id.uuidString)
+        )
+    } // ← datos reales del ESP32
+    
+    
     @State private var marked = false
 
     var body: some View {

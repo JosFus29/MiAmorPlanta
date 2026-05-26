@@ -48,12 +48,18 @@ struct HomeView: View {
                 .padding(.bottom, 12)
         }
         .navigationBarHidden(true)
+        .onAppear {
+            // 🔍 TEMPORAL: muestra el UUID real de cada planta en consola
+            for plant in storage.plants {
+                print("🪴 \(plant.name) → ID: \(plant.id.uuidString)")
+            }
+        }
         .sheet(isPresented: $showAddPlant) {
             AddPlantView()
         }
     }
 
-    // MARK: - Header  ← más compacto
+    // MARK: - Header
 
     private var headerSection: some View {
         ZStack {

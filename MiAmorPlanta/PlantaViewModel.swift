@@ -14,7 +14,7 @@ class PlantaViewModel: ObservableObject {
     private let plantId: String
 
     // plantId = el UUID de la planta en la app
-    init(plantId: String = "planta_prueba") {
+    init(plantId: String) {
         self.plantId = plantId
 
         guard let userId = Auth.auth().currentUser?.uid else {
