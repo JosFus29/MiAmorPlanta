@@ -2,8 +2,15 @@ import SwiftUI
 
 struct SensorCardView: View {
     let plant: Plant
-    let sensorVM: PlantaViewModel
+    @StateObject private var sensorVM: PlantaViewModel
     @State private var watered = false
+
+    init(plant: Plant) {
+        self.plant = plant
+        _sensorVM = StateObject(
+            wrappedValue: PlantaViewModel(plantId: "planta_prueba") // ← temporal
+        )
+    }
 
     // Datos reales del sensor
     private var humedadReal: Int { sensorVM.humedadCruda }
@@ -14,10 +21,6 @@ struct SensorCardView: View {
 
     private var sensorName: String {
         "Sensor-\(plant.name.components(separatedBy: " ").first ?? plant.name)"
-    }
-
-    private var lastSeen: String {
-        "Actualizado ahora"
     }
 
     var body: some View {
@@ -50,14 +53,13 @@ struct SensorCardView: View {
 
                         Spacer()
 
-                        // Indicador en vivo
                         HStack(spacing: 4) {
                             Circle()
-                                .fill(Color("StatusGreen"))
+                                .fill(sensorVM.isConnected ? Color("StatusGreen") : Color.gray)
                                 .frame(width: 8, height: 8)
-                            Text("En vivo")
+                            Text(sensorVM.isConnected ? "En vivo" : "Conectando...")
                                 .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(Color("StatusGreen"))
+                                .foregroundColor(sensorVM.isConnected ? Color("StatusGreen") : .gray)
                         }
                     }
 
@@ -155,7 +157,7 @@ struct SensorCardView: View {
                             .font(.system(size: 11))
                             .foregroundColor(.orange)
                         Spacer()
-                        Text(lastSeen)
+                        Text("Actualizado ahora")
                             .font(.system(size: 10))
                             .foregroundColor(.gray)
                     }
@@ -175,7 +177,6 @@ struct SensorCardView: View {
                             .cornerRadius(20)
                         }
                     } else {
-                        // Badge estado ok
                         HStack {
                             Text("✅ Todo bien con \(plant.name)")
                                 .font(.system(size: 12, weight: .medium))
@@ -213,8 +214,7 @@ struct SensorCardView: View {
             plant: Plant(
                 name: "Aguacate", location: "Jardín",
                 status: .seco, hasSensor: true, emoji: "🥑"
-            ),
-            sensorVM: PlantaViewModel()
+            )
         )
     }
     .padding()

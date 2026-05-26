@@ -3,7 +3,7 @@ import SwiftUI
 struct CuidadosView: View {
 
     @ObservedObject private var storage = PlantStorage.shared
-    @StateObject private var sensorVM = PlantaViewModel() // ← datos reales del ESP32
+    //@StateObject private var sensorVM = PlantaViewModel() // ← datos reales del ESP32
     @State private var showAddSensor = false
 
     private var withSensor: [Plant] {
@@ -38,7 +38,7 @@ struct CuidadosView: View {
                             // Plantas con sensor
                             if !withSensor.isEmpty {
                                 ForEach(withSensor) { plant in
-                                    SensorCardView(plant: plant, sensorVM: sensorVM)
+                                    SensorCardView(plant: plant/*, sensorVM: sensorVM*/)
                                 }
                             }
 

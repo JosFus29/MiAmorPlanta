@@ -2,12 +2,13 @@ import SwiftUI
 
 struct LoginView: View {
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var auth = AuthService.shared
 
     @State private var email = ""
     @State private var password = ""
     @State private var showToast = false
     @State private var toastMessage = ""
-    @State private var loginSuccess = false
+    @State private var isError = false
 
     var body: some View {
         ZStack {
@@ -51,15 +52,24 @@ struct LoginView: View {
                 )
                 .padding(.bottom, 28)
 
+                // Botón login
                 Button(action: handleLogin) {
-                    Text("Entrar")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color("PlantAccent"))
-                        .foregroundColor(.white)
-                        .cornerRadius(50)
-                        .font(.system(size: 16, weight: .semibold))
+                    Group {
+                        if auth.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Text("Entrar")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color("PlantAccent"))
+                    .foregroundColor(.white)
+                    .cornerRadius(50)
                 }
+                .disabled(auth.isLoading)
 
                 Divider()
                     .background(Color("PlantBorder"))
@@ -91,18 +101,11 @@ struct LoginView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
-                        .background(toastMessage.contains("incorrectos") || toastMessage.contains("campos")
-                                    ? Color.red.opacity(0.85)
-                                    : Color("PlantAccent"))
+                        .background(isError ? Color.red.opacity(0.85) : Color("PlantAccent"))
                         .cornerRadius(20)
                         .padding(.bottom, 32)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
-            }
-
-            // Navega al Home tras login exitoso
-            NavigationLink(destination: HomeView(), isActive: $loginSuccess) {
-                EmptyView()
             }
         }
         .navigationBarHidden(true)
@@ -113,24 +116,33 @@ struct LoginView: View {
 
     private func handleLogin() {
         guard !email.isEmpty, !password.isEmpty else {
-            toast("Llena todos los campos")
+            showError("Llena todos los campos")
             return
         }
 
-        if AccountStorage.shared.validate(email: email, password: password) {
-            toast("¡Bienvenida de vuelta!")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                loginSuccess = true
+        auth.login(email: email, password: password) { success in
+            if success {
+                showSuccess("¡Bienvenida de vuelta! 🌿")
+            } else {
+                showError(auth.errorMessage)
             }
-        } else {
-            toast("Correo o contraseña incorrectos")
         }
     }
 
-    private func toast(_ message: String) {
+    private func showError(_ message: String) {
+        isError = true
         toastMessage = message
         withAnimation { showToast = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation { showToast = false }
+        }
+    }
+
+    private func showSuccess(_ message: String) {
+        isError = false
+        toastMessage = message
+        withAnimation { showToast = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             withAnimation { showToast = false }
         }
     }

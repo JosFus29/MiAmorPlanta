@@ -84,7 +84,7 @@ struct ConfigView: View {
         .alert("¿Cerrar sesión?", isPresented: $showLogoutAlert) {
             Button("Cancelar", role: .cancel) {}
             Button("Cerrar sesión", role: .destructive) {
-                AccountStorage.shared.logout()
+                AuthService.shared.logout()
             }
         } message: {
             Text("Se borrará la sesión guardada.")

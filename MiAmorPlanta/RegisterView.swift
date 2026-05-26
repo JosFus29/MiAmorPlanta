@@ -2,13 +2,14 @@ import SwiftUI
 
 struct RegisterView: View {
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var auth = AuthService.shared
 
     @State private var fullName = ""
     @State private var email = ""
     @State private var password = ""
     @State private var showToast = false
     @State private var toastMessage = ""
-    @State private var registerSuccess = false
+    @State private var isError = false
 
     var body: some View {
         ZStack {
@@ -60,15 +61,24 @@ struct RegisterView: View {
                 )
                 .padding(.bottom, 28)
 
+                // Botón registro
                 Button(action: handleRegister) {
-                    Text("Crear cuenta")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color("PlantAccent"))
-                        .foregroundColor(.white)
-                        .cornerRadius(50)
-                        .font(.system(size: 16, weight: .semibold))
+                    Group {
+                        if auth.isLoading {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Text("Crear cuenta")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color("PlantAccent"))
+                    .foregroundColor(.white)
+                    .cornerRadius(50)
                 }
+                .disabled(auth.isLoading)
 
                 Divider()
                     .background(Color("PlantBorder"))
@@ -100,18 +110,11 @@ struct RegisterView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 10)
-                        .background(toastMessage.contains("campos")
-                                    ? Color.red.opacity(0.85)
-                                    : Color("PlantAccent"))
+                        .background(isError ? Color.red.opacity(0.85) : Color("PlantAccent"))
                         .cornerRadius(20)
                         .padding(.bottom, 32)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
-            }
-
-            // Navega al Login tras registro exitoso
-            NavigationLink(destination: LoginView(), isActive: $registerSuccess) {
-                EmptyView()
             }
         }
         .navigationBarHidden(true)
@@ -122,23 +125,38 @@ struct RegisterView: View {
 
     private func handleRegister() {
         guard !fullName.isEmpty, !email.isEmpty, !password.isEmpty else {
-            toast("Completa todos los campos")
+            showError("Completa todos los campos")
             return
         }
 
-        // Guardar en UserDefaults
-        AccountStorage.shared.save(name: fullName, email: email, password: password)
+        guard password.count >= 6 else {
+            showError("La contraseña debe tener al menos 6 caracteres")
+            return
+        }
 
-        toast("¡Cuenta creada! Inicia sesión 🌱")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            registerSuccess = true
+        auth.register(name: fullName, email: email, password: password) { success in
+            if success {
+                showSuccess("¡Cuenta creada! Bienvenida 🌱")
+            } else {
+                showError(auth.errorMessage)
+            }
         }
     }
 
-    private func toast(_ message: String) {
+    private func showError(_ message: String) {
+        isError = true
         toastMessage = message
         withAnimation { showToast = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation { showToast = false }
+        }
+    }
+
+    private func showSuccess(_ message: String) {
+        isError = false
+        toastMessage = message
+        withAnimation { showToast = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             withAnimation { showToast = false }
         }
     }
