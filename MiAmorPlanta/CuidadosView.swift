@@ -31,9 +31,9 @@ struct CuidadosView: View {
                         } else {
 
                             // ── Tarjeta de datos en vivo del ESP32 ───
-                            if !withSensor.isEmpty {
+                            /*if !withSensor.isEmpty {
                                 liveDataCard
-                            }
+                            }*/
 
                             // Plantas con sensor
                             if !withSensor.isEmpty {
@@ -87,7 +87,7 @@ struct CuidadosView: View {
 
     // MARK: - Tarjeta de datos en vivo
 
-    private var liveDataCard: some View {
+    /*private var liveDataCard: some View {
         VStack(spacing: 12) {
 
             // Título
@@ -156,7 +156,7 @@ struct CuidadosView: View {
         .background(Color.white)
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-    }
+    }*/
 
     // MARK: - Header
 
