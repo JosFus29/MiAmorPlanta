@@ -44,8 +44,8 @@ struct PerenualPlantDetailView: View {
 
                         VStack(alignment: .leading, spacing: 20) {
 
-                            // Nombre + nombre científico
-                            VStack(alignment: .leading, spacing: 6) {
+                            // Nombre
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text(detail.displayName)
                                     .font(.custom("Georgia-Bold", size: 26))
                                     .foregroundColor(Color("TextDark"))
@@ -58,37 +58,38 @@ struct PerenualPlantDetailView: View {
                                 if let family = detail.family, !family.isEmpty {
                                     Text("Familia: \(family)")
                                         .font(.system(size: 12))
-                                        .foregroundColor(.gray.opacity(0.8))
+                                        .foregroundColor(.gray.opacity(0.7))
                                 }
                             }
 
                             // Chips resumen
                             infoChips(detail: detail)
 
-                            // ── Riego ──────────────────────────────────────
-                            infoSection(title: "💧 Riego") {
+                            // Riego
+                            infoSection(title: "Riego", icon: "drop.fill", iconColor: .blue) {
                                 VStack(spacing: 12) {
-                                    careRow(icon: "drop.fill", color: .blue,
+                                    careRow(icon: "drop", color: .blue,
                                             label: "Frecuencia",
                                             value: wateringLabel(detail.watering))
                                     if let bench = detail.watering_general_benchmark,
                                        let val = bench.value, let unit = bench.unit {
-                                        careRow(icon: "calendar", color: .cyan,
+                                        careRow(icon: "calendar",
+                                                color: Color("PlantAccent"),
                                                 label: "Referencia",
                                                 value: "Cada \(val) \(unit == "days" ? "días" : unit)")
                                     }
                                 }
                             }
 
-                            // ── Luz solar ──────────────────────────────────
-                            infoSection(title: "☀️ Luz solar") {
+                            // Luz solar
+                            infoSection(title: "Luz solar", icon: "sun.max", iconColor: .orange) {
                                 VStack(spacing: 8) {
                                     if let sunList = detail.sunlight, !sunList.isEmpty {
                                         ForEach(sunList, id: \.self) { s in
                                             HStack(spacing: 10) {
                                                 Image(systemName: sunlightIcon(s))
-                                                    .foregroundColor(.yellow)
-                                                    .frame(width: 20)
+                                                    .foregroundColor(.orange.opacity(0.7))
+                                                    .frame(width: 18)
                                                 Text(sunlightShort(s))
                                                     .font(.system(size: 14))
                                                     .foregroundColor(Color("TextDark"))
@@ -103,47 +104,47 @@ struct PerenualPlantDetailView: View {
                                 }
                             }
 
-                            // ── Cuidados generales ─────────────────────────
-                            infoSection(title: "🌱 Cuidados generales") {
+                            // Cuidados generales
+                            infoSection(title: "Cuidados", icon: "leaf", iconColor: Color("PlantAccent")) {
                                 VStack(spacing: 12) {
-                                    careRow(icon: "arrow.up.forward", color: .green,
+                                    careRow(icon: "arrow.up.right", color: Color("PlantAccent"),
                                             label: "Crecimiento",
                                             value: growthLabel(detail.growth_rate))
-                                    careRow(icon: "wrench.fill", color: .orange,
+                                    careRow(icon: "wrench", color: .gray,
                                             label: "Mantenimiento",
                                             value: maintenanceLabel(detail.maintenance))
-                                    careRow(icon: "star.fill", color: .yellow,
+                                    careRow(icon: "chart.bar", color: .gray,
                                             label: "Dificultad",
                                             value: careLevelLabel(detail.care_level))
-                                    careRow(icon: "leaf.fill", color: Color("PlantAccent"),
+                                    careRow(icon: "arrow.clockwise", color: .gray,
                                             label: "Ciclo de vida",
                                             value: cycleLabel(detail.cycle))
                                     if let typeStr = detail.type, !typeStr.isEmpty {
-                                        careRow(icon: "tag.fill", color: .purple,
-                                                label: "Tipo de planta",
+                                        careRow(icon: "tag", color: .gray,
+                                                label: "Tipo",
                                                 value: typeStr.capitalized)
                                     }
                                 }
                             }
 
-                            // ── Poda ───────────────────────────────────────
+                            // Poda
                             if let months = detail.pruning_month, !months.isEmpty {
-                                infoSection(title: "✂️ Poda") {
+                                infoSection(title: "Poda", icon: "scissors", iconColor: .gray) {
                                     VStack(alignment: .leading, spacing: 10) {
                                         HStack(spacing: 6) {
                                             ForEach(months, id: \.self) { m in
                                                 Text(monthShort(m))
-                                                    .font(.system(size: 12, weight: .semibold))
+                                                    .font(.system(size: 12, weight: .medium))
                                                     .padding(.horizontal, 10)
                                                     .padding(.vertical, 5)
-                                                    .background(Color("PlantAccent").opacity(0.15))
+                                                    .background(Color("PlantAccent").opacity(0.1))
                                                     .foregroundColor(Color("PlantAccent"))
-                                                    .cornerRadius(10)
+                                                    .cornerRadius(8)
                                             }
                                         }
                                         if let pc = detail.pruning_count,
                                            let amt = pc.amount, let intv = pc.interval {
-                                            Text("Frecuencia: \(amt) vez/\(pruningInterval(intv))")
+                                            Text("\(amt) vez por \(pruningInterval(intv))")
                                                 .font(.system(size: 13))
                                                 .foregroundColor(.gray)
                                         }
@@ -151,26 +152,26 @@ struct PerenualPlantDetailView: View {
                                 }
                             }
 
-                            // ── Suelo ──────────────────────────────────────
+                            // Suelo
                             if let soils = detail.soil, !soils.isEmpty {
-                                infoSection(title: "🪨 Tipo de suelo") {
+                                infoSection(title: "Tipo de suelo", icon: "circle.grid.3x3", iconColor: .brown) {
                                     HStack(spacing: 8) {
                                         ForEach(soils, id: \.self) { s in
-                                            badge(text: soilLabel(s), color: Color("PlantDark"))
+                                            pill(text: soilLabel(s), color: Color("PlantDark"))
                                         }
                                     }
                                 }
                             }
 
-                            // ── Plagas ─────────────────────────────────────
+                            // Plagas
                             if let pests = detail.pest_susceptibility, !pests.isEmpty {
-                                infoSection(title: "🐛 Plagas comunes") {
+                                infoSection(title: "Plagas comunes", icon: "ant", iconColor: .orange) {
                                     VStack(alignment: .leading, spacing: 6) {
                                         ForEach(pests, id: \.self) { p in
                                             HStack(spacing: 8) {
                                                 Circle()
-                                                    .fill(Color.orange.opacity(0.7))
-                                                    .frame(width: 6, height: 6)
+                                                    .fill(Color.orange.opacity(0.5))
+                                                    .frame(width: 5, height: 5)
                                                 Text(p.capitalized)
                                                     .font(.system(size: 13))
                                                     .foregroundColor(Color("TextDark"))
@@ -180,70 +181,40 @@ struct PerenualPlantDetailView: View {
                                 }
                             }
 
-                            // ── Origen ─────────────────────────────────────
+                            // Origen
                             if let origins = detail.origin, !origins.isEmpty {
-                                infoSection(title: "🗺️ Origen") {
+                                infoSection(title: "Origen", icon: "globe.americas", iconColor: .gray) {
                                     Text(origins.joined(separator: ", "))
                                         .font(.system(size: 13))
                                         .foregroundColor(.gray)
                                 }
                             }
 
-                            // ── Características ────────────────────────────
-                            infoSection(title: "✨ Características") {
-                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
-                                    if detail.drought_tolerant?.isTrue == true {
-                                        featurePill("🏜️ Resistente a sequía", .orange)
-                                    }
-                                    if detail.tropical?.isTrue == true {
-                                        featurePill("🌴 Tropical", .green)
-                                    }
-                                    if detail.indoor?.isTrue == true {
-                                        featurePill("🏠 Interior", .blue)
-                                    }
-                                    if detail.medicinal?.isTrue == true {
-                                        featurePill("💊 Medicinal", Color("PlantAccent"))
-                                    }
-                                    if detail.edible_fruit?.isTrue == true {
-                                        featurePill("🍎 Fruto comestible", .pink)
-                                    }
-                                    if detail.edible_leaf?.isTrue == true {
-                                        featurePill("🥗 Hoja comestible", .green)
-                                    }
-                                    if detail.flowers?.isTrue == true {
-                                        featurePill("🌸 Florece", .pink)
-                                    }
-                                    if detail.salt_tolerant?.isTrue == true {
-                                        featurePill("🧂 Tolera sal", .gray)
-                                    }
-                                    if detail.thorny?.isTrue == true {
-                                        featurePill("🌵 Espinosa", .red)
-                                    }
-                                    if detail.invasive?.isTrue == true {
-                                        featurePill("⚠️ Invasiva", .orange)
-                                    }
-                                    if detail.poisonous_to_humans?.isTrue == true {
-                                        featurePill("☠️ Tóxica humanos", .red)
-                                    }
-                                    if detail.poisonous_to_pets?.isTrue == true {
-                                        featurePill("🐾 Tóxica mascotas", .red)
+                            // Características
+                            let features = buildFeatures(detail)
+                            if !features.isEmpty {
+                                infoSection(title: "Características", icon: "info.circle", iconColor: .gray) {
+                                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                                        ForEach(features, id: \.label) { f in
+                                            featurePill(f.label, f.color)
+                                        }
                                     }
                                 }
                             }
 
-                            // ── Temporadas ─────────────────────────────────
+                            // Temporadas
                             let hasSeasons = (detail.flowering_season != nil && detail.flowers?.isTrue == true)
                                 || (detail.harvest_season != nil && detail.fruits?.isTrue == true)
                             if hasSeasons {
-                                infoSection(title: "🗓️ Temporadas") {
+                                infoSection(title: "Temporadas", icon: "calendar", iconColor: .gray) {
                                     VStack(spacing: 8) {
                                         if let fs = detail.flowering_season, detail.flowers?.isTrue == true {
-                                            careRow(icon: "flower", color: .pink,
+                                            careRow(icon: "sparkle", color: .pink,
                                                     label: "Floración",
                                                     value: seasonLabel(fs))
                                         }
                                         if let hs = detail.harvest_season, detail.fruits?.isTrue == true {
-                                            careRow(icon: "leaf.circle.fill", color: .green,
+                                            careRow(icon: "leaf.circle", color: Color("PlantAccent"),
                                                     label: "Cosecha",
                                                     value: seasonLabel(hs))
                                         }
@@ -251,31 +222,31 @@ struct PerenualPlantDetailView: View {
                                 }
                             }
 
-                            // ── Atrae ──────────────────────────────────────
+                            // Atrae
                             if let attracts = detail.attracts, !attracts.isEmpty {
-                                infoSection(title: "🦋 Atrae") {
+                                infoSection(title: "Atrae", icon: "wind", iconColor: .gray) {
                                     HStack(spacing: 8) {
                                         ForEach(attracts, id: \.self) { a in
-                                            badge(text: a.capitalized, color: .purple)
+                                            pill(text: a.capitalized, color: Color("PlantDark").opacity(0.7))
                                         }
                                     }
                                 }
                             }
 
-                            // ── Propagación ────────────────────────────────
+                            // Propagación
                             if let props = detail.propagation, !props.isEmpty {
-                                infoSection(title: "🌿 Propagación") {
+                                infoSection(title: "Propagación", icon: "arrow.branch", iconColor: Color("PlantAccent")) {
                                     HStack(spacing: 8) {
                                         ForEach(props, id: \.self) { p in
-                                            badge(text: p.capitalized, color: Color("PlantAccent"))
+                                            pill(text: p.capitalized, color: Color("PlantAccent"))
                                         }
                                     }
                                 }
                             }
 
-                            // ── Guías de cuidado ───────────────────────────
+                            // Guías de cuidado
                             if !careGuides.isEmpty {
-                                infoSection(title: "📖 Guías de cuidado") {
+                                infoSection(title: "Guías de cuidado", icon: "book", iconColor: Color("PlantDark")) {
                                     VStack(alignment: .leading, spacing: 14) {
                                         ForEach(careGuides) { section in
                                             if let type = section.type, let desc = section.description {
@@ -296,9 +267,9 @@ struct PerenualPlantDetailView: View {
                                 }
                             }
 
-                            // ── Descripción ────────────────────────────────
+                            // Descripción
                             if let desc = detail.description, !desc.isEmpty {
-                                infoSection(title: "📋 Descripción") {
+                                infoSection(title: "Descripción", icon: "text.alignleft", iconColor: .gray) {
                                     Text(desc)
                                         .font(.system(size: 14))
                                         .foregroundColor(Color("TextDark"))
@@ -307,7 +278,7 @@ struct PerenualPlantDetailView: View {
                                 }
                             }
 
-                            // ── Botón agregar ──────────────────────────────
+                            // Botón agregar
                             Button(action: { addToCollection(detail) }) {
                                 HStack(spacing: 10) {
                                     Image(systemName: added ? "checkmark.circle.fill" : "plus.circle.fill")
@@ -379,46 +350,56 @@ struct PerenualPlantDetailView: View {
 
     private func infoChips(detail: PerenualPlantDetail) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
+            HStack(spacing: 8) {
                 if let w = detail.watering {
-                    chip(text: wateringEmoji(w) + " " + wateringShort(w), color: .blue)
+                    chip(text: wateringShort(w), color: .blue)
                 }
                 if let c = detail.cycle {
-                    chip(text: "🔄 " + cycleShort(c), color: .purple)
+                    chip(text: cycleShort(c), color: .purple)
                 }
                 if let s = detail.sunlight?.first {
-                    chip(text: "☀️ " + sunlightShort(s), color: .yellow)
+                    chip(text: sunlightShort(s), color: .orange)
                 }
-                if detail.tropical?.isTrue == true   { chip(text: "🌴 Tropical", color: .green) }
-                if detail.indoor?.isTrue == true      { chip(text: "🏠 Interior", color: .blue) }
-                if detail.drought_tolerant?.isTrue == true { chip(text: "🏜️ Sequía", color: .orange) }
-                if detail.poisonous_to_pets?.isTrue == true { chip(text: "⚠️ Tóxica mascotas", color: .red) }
+                if detail.tropical?.isTrue == true        { chip(text: "Tropical", color: .green) }
+                if detail.indoor?.isTrue == true           { chip(text: "Interior", color: .blue) }
+                if detail.drought_tolerant?.isTrue == true { chip(text: "Resistente a sequía", color: .orange) }
+                if detail.poisonous_to_pets?.isTrue == true { chip(text: "Tóxica mascotas", color: .red) }
             }
         }
     }
 
-    // MARK: - Sección genérica
+    // MARK: - Sección con ícono SF en el título
 
-    private func infoSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func infoSection<Content: View>(
+        title: String,
+        icon: String,
+        iconColor: Color,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text(title)
-                .font(.system(size: 16, weight: .bold))
-                .foregroundColor(Color("TextDark"))
+            HStack(spacing: 7) {
+                Image(systemName: icon)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(iconColor)
+                Text(title)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(Color("TextDark"))
+            }
             content()
         }
         .padding(16)
         .background(Color.white)
         .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
     }
 
     private func careRow(icon: String, color: Color, label: String, value: String) -> some View {
         HStack(spacing: 14) {
             Image(systemName: icon)
                 .foregroundColor(color)
-                .frame(width: 20)
+                .frame(width: 18)
             Text(label)
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: 14))
                 .foregroundColor(Color("TextDark"))
             Spacer()
             Text(value)
@@ -432,15 +413,16 @@ struct PerenualPlantDetailView: View {
     private func chip(text: String, color: Color) -> some View {
         Text(text)
             .font(.system(size: 12, weight: .medium))
-            .foregroundColor(color.opacity(0.9))
+            .foregroundColor(color.opacity(0.85))
             .padding(.horizontal, 12).padding(.vertical, 6)
-            .background(color.opacity(0.1))
+            .background(color.opacity(0.08))
             .cornerRadius(20)
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(color.opacity(0.2), lineWidth: 1))
     }
 
-    private func badge(text: String, color: Color) -> some View {
+    private func pill(text: String, color: Color) -> some View {
         Text(text)
-            .font(.system(size: 12, weight: .semibold))
+            .font(.system(size: 12, weight: .medium))
             .foregroundColor(.white)
             .padding(.horizontal, 12).padding(.vertical, 6)
             .background(color)
@@ -453,9 +435,30 @@ struct PerenualPlantDetailView: View {
             .foregroundColor(color)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
-            .background(color.opacity(0.1))
-            .cornerRadius(12)
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(color.opacity(0.3), lineWidth: 1))
+            .background(color.opacity(0.08))
+            .cornerRadius(10)
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(color.opacity(0.2), lineWidth: 1))
+    }
+
+    // MARK: - Features builder
+
+    private struct Feature { let label: String; let color: Color }
+
+    private func buildFeatures(_ d: PerenualPlantDetail) -> [Feature] {
+        var list: [Feature] = []
+        if d.drought_tolerant?.isTrue == true   { list.append(.init(label: "Resistente a sequía", color: .orange)) }
+        if d.tropical?.isTrue == true            { list.append(.init(label: "Tropical", color: .green)) }
+        if d.indoor?.isTrue == true              { list.append(.init(label: "Interior", color: .blue)) }
+        if d.medicinal?.isTrue == true           { list.append(.init(label: "Medicinal", color: Color("PlantAccent"))) }
+        if d.edible_fruit?.isTrue == true        { list.append(.init(label: "Fruto comestible", color: .pink)) }
+        if d.edible_leaf?.isTrue == true         { list.append(.init(label: "Hoja comestible", color: .green)) }
+        if d.flowers?.isTrue == true             { list.append(.init(label: "Florece", color: .pink)) }
+        if d.salt_tolerant?.isTrue == true       { list.append(.init(label: "Tolera sal", color: .gray)) }
+        if d.thorny?.isTrue == true              { list.append(.init(label: "Espinosa", color: .red)) }
+        if d.invasive?.isTrue == true            { list.append(.init(label: "Invasiva", color: .orange)) }
+        if d.poisonous_to_humans?.isTrue == true { list.append(.init(label: "Tóxica · humanos", color: .red)) }
+        if d.poisonous_to_pets?.isTrue == true   { list.append(.init(label: "Tóxica · mascotas", color: .red)) }
+        return list
     }
 
     // MARK: - Traducciones
@@ -465,7 +468,7 @@ struct PerenualPlantDetailView: View {
         case "frequent": return "Frecuente · cada 2-3 días"
         case "average":  return "Moderado · cada semana"
         case "minimum":  return "Mínimo · cada 2-3 semanas"
-        case "none":     return "Casi nulo · muy resistente"
+        case "none":     return "Casi nulo"
         default:         return "Moderado · cada semana"
         }
     }
@@ -478,21 +481,6 @@ struct PerenualPlantDetailView: View {
         case "none":     return "Sin riego"
         default:         return "Riego moderado"
         }
-    }
-
-    private func wateringEmoji(_ w: String) -> String {
-        switch w.lowercased() {
-        case "frequent": return "💧💧💧"
-        case "average":  return "💧💧"
-        case "minimum":  return "💧"
-        case "none":     return "🏜️"
-        default:         return "💧"
-        }
-    }
-
-    private func sunlightLabel(_ s: [String]?) -> String {
-        guard let list = s, !list.isEmpty else { return "Luz indirecta" }
-        return list.map { sunlightShort($0) }.joined(separator: ", ")
     }
 
     private func sunlightShort(_ v: String) -> String {
@@ -524,40 +512,33 @@ struct PerenualPlantDetailView: View {
 
     private func maintenanceLabel(_ m: String?) -> String {
         switch m?.lowercased() {
-        case "high":     return "Alto · atención frecuente"
-        case "moderate": return "Moderado · revisión semanal"
-        case "low":      return "Bajo · muy fácil de cuidar"
+        case "high":     return "Alto"
+        case "moderate": return "Moderado"
+        case "low":      return "Bajo"
         default:         return "Moderado"
         }
     }
 
     private func careLevelLabel(_ c: String?) -> String {
         switch c?.lowercased() {
-        case "easy":   return "Fácil ⭐"
-        case "medium": return "Medio ⭐⭐"
-        case "hard":   return "Difícil ⭐⭐⭐"
+        case "easy":   return "Fácil"
+        case "medium": return "Intermedio"
+        case "hard":   return "Avanzado"
         default:       return c?.capitalized ?? "Moderado"
         }
     }
 
     private func cycleLabel(_ c: String?) -> String {
         switch c?.lowercased() {
-        case "perennial": return "Perenne · vive varios años"
-        case "annual":    return "Anual · ciclo de un año"
-        case "biennial":  return "Bienal · ciclo de dos años"
+        case "perennial": return "Perenne"
+        case "annual":    return "Anual"
+        case "biennial":  return "Bienal"
         case "biannual":  return "Bianual"
         default:          return c?.capitalized ?? "Perenne"
         }
     }
 
-    private func cycleShort(_ c: String) -> String {
-        switch c.lowercased() {
-        case "perennial": return "Perenne"
-        case "annual":    return "Anual"
-        case "biennial":  return "Bienal"
-        default:          return c.capitalized
-        }
-    }
+    private func cycleShort(_ c: String) -> String { cycleLabel(c) }
 
     private func soilLabel(_ s: String) -> String {
         switch s.lowercased() {
@@ -588,18 +569,18 @@ struct PerenualPlantDetailView: View {
 
     private func pruningInterval(_ i: String) -> String {
         switch i.lowercased() {
-        case "year": return "año"
+        case "year":  return "año"
         case "month": return "mes"
-        case "week": return "semana"
-        default: return i
+        case "week":  return "semana"
+        default:      return i
         }
     }
 
     private func careGuideTypeLabel(_ t: String) -> String {
         switch t.lowercased() {
-        case "watering": return "💧 Riego"
-        case "sunlight": return "☀️ Luz solar"
-        case "pruning":  return "✂️ Poda"
+        case "watering": return "Riego"
+        case "sunlight": return "Luz solar"
+        case "pruning":  return "Poda"
         default:         return t.capitalized
         }
     }
