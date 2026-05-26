@@ -3,10 +3,8 @@ import SwiftUI
 struct CuidadosView: View {
 
     @ObservedObject private var storage = PlantStorage.shared
-    @StateObject private var sensorVM: PlantaViewModel = {
-        let id = PlantStorage.shared.plants.first(where: { $0.hasSensor })?.id.uuidString
-        return PlantaViewModel(plantId: id)
-    }()
+    @StateObject private var sensorVM = PlantaViewModel(plantId: "")
+    
     @State private var showAddSensor = false
 
     private var withSensor: [Plant] {
@@ -36,6 +34,11 @@ struct CuidadosView: View {
                             // Tarjeta resumen en vivo
                             if !withSensor.isEmpty {
                                 liveDataCard
+                                    .onAppear {
+                                        if let firstId = withSensor.first?.id.uuidString {
+                                            sensorVM.cambiarPlanta(plantId: firstId)
+                                        }
+                                    }
                             }
 
                             // Plantas con sensor

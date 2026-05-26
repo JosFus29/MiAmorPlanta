@@ -8,9 +8,7 @@ struct PlantDetailView: View {
 
     init(plant: Plant) {
         self.plant = plant
-        _sensorVM = StateObject(
-            wrappedValue: PlantaViewModel(plantId: plant.id.uuidString)
-        )
+        _sensorVM = StateObject(wrappedValue: PlantaViewModel(plantId: plant.id.uuidString))
     } // ← datos reales del ESP32
     
     

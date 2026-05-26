@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct SensoresView: View {
-    @StateObject private var viewModel = PlantaViewModel()
+    @StateObject private var viewModel = PlantaViewModel(plantId: "")
 
     var body: some View {
         ZStack {
@@ -35,7 +35,7 @@ struct SensoresView: View {
                             icon: "drop.fill",
                             iconColor: .blue,
                             title: "Humedad del Suelo",
-                            value: "\(viewModel.humedadCruda)",
+                            value: viewModel.cargando ? "--" : "\(viewModel.humedadCruda)",
                             unit: "unidades",
                             estado: viewModel.estadoHumedad,
                             estadoColor: .blue
@@ -46,7 +46,7 @@ struct SensoresView: View {
                             icon: "thermometer.medium",
                             iconColor: .orange,
                             title: "Temperatura Ambiente",
-                            value: String(format: "%.1f", viewModel.temperatura),
+                            value: viewModel.cargando ? "--" : String(format: "%.1f", viewModel.temperatura),
                             unit: "°C",
                             estado: viewModel.estadoTemperatura,
                             estadoColor: .orange
@@ -55,6 +55,12 @@ struct SensoresView: View {
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
                     .padding(.bottom, 30)
+                }
+                .onAppear {
+                    if let firstId = PlantStorage.shared.plants
+                        .first(where: { $0.hasSensor })?.id.uuidString {
+                        viewModel.cambiarPlanta(plantId: firstId)
+                    }
                 }
             }
         }
@@ -76,9 +82,14 @@ struct SensoresView: View {
                     .font(.system(size: 15, weight: .bold))
                     .foregroundColor(iconColor)
                 Spacer()
-                Circle()
-                    .fill(Color("StatusGreen"))
-                    .frame(width: 10, height: 10)
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(viewModel.cargando ? Color.gray : Color("StatusGreen"))
+                        .frame(width: 10, height: 10)
+                    Text(viewModel.cargando ? "Conectando..." : "En vivo")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(viewModel.cargando ? .gray : Color("StatusGreen"))
+                }
             }
 
             HStack(alignment: .firstTextBaseline, spacing: 6) {
