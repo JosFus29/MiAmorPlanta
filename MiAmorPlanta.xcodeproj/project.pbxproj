@@ -8,11 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		FBBD31FC2FC50FC70045554A /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = FBBD31FB2FC50FC70045554A /* FirebaseDatabase */; };
-		FBBD31FE2FC5164B0045554A /* PlantaViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBBD31FD2FC5164B0045554A /* PlantaViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		FBBD31FD2FC5164B0045554A /* PlantaViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlantaViewModel.swift; sourceTree = "<group>"; };
 		FBD0DAF12FABDE2200103CA2 /* MiAmorPlanta.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MiAmorPlanta.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -39,7 +37,6 @@
 		FBD0DAE82FABDE2100103CA2 = {
 			isa = PBXGroup;
 			children = (
-				FBBD31FD2FC5164B0045554A /* PlantaViewModel.swift */,
 				FBD0DAF32FABDE2200103CA2 /* MiAmorPlanta */,
 				FBD0DAF22FABDE2200103CA2 /* Products */,
 			);
@@ -131,7 +128,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FBBD31FE2FC5164B0045554A /* PlantaViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

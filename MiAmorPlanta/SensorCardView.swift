@@ -2,102 +2,185 @@ import SwiftUI
 
 struct SensorCardView: View {
     let plant: Plant
+    let sensorVM: PlantaViewModel
     @State private var watered = false
 
-    // Simula "hace X min" con un valor fijo por planta
-    private var lastSeen: String {
-        plant.hasSensor ? "Hace \(abs(plant.name.count % 12) + 1) min" : "Hace 4h"
-    }
+    // Datos reales del sensor
+    private var humedadReal: Int { sensorVM.humedadCruda }
+    private var temperaturaReal: Double { sensorVM.temperatura }
+    private var estadoHumedadReal: String { sensorVM.estadoHumedad }
+    private var estadoTempReal: String { sensorVM.estadoTemperatura }
+    private var esSeco: Bool { humedadReal < 30 }
 
     private var sensorName: String {
         "Sensor-\(plant.name.components(separatedBy: " ").first ?? plant.name)"
     }
 
+    private var lastSeen: String {
+        "Actualizado ahora"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-
-            // ── Barra de color izquierda + contenido ─────────────────
             HStack(spacing: 0) {
 
-                // Barra lateral de color según estado
+                // Barra lateral
                 RoundedRectangle(cornerRadius: 3)
                     .fill(barColor)
                     .frame(width: 5)
                     .padding(.vertical, 4)
 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
 
-                    // Fila superior: nombre + indicador activo
+                    // ── Encabezado ───────────────────────────────────
                     HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(sensorName)
-                                .font(.system(size: 15, weight: .bold))
-                                .foregroundColor(Color("TextDark"))
+                        HStack(spacing: 8) {
+                            Text(plant.emoji)
+                                .font(.system(size: 28))
 
-                            Text("\(plant.name) · \(plant.location)")
-                                .font(.system(size: 11))
-                                .foregroundColor(.gray)
-                        }
-
-                        Spacer()
-
-                        Circle()
-                            .fill(plant.hasSensor ? Color("StatusGreen") : Color("StatusRed"))
-                            .frame(width: 10, height: 10)
-                    }
-
-                    // Humedad destacada
-                    if plant.status == .seco {
-                        Text("Humedad del suelo: \(plant.humidity)%")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color("StatusRed"))
-                    } else {
-                        Text("Humedad del suelo: \(plant.humidity)%")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(Color("StatusGreen"))
-                    }
-
-                    // Barra de humedad
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(Color.gray.opacity(0.12))
-                                .frame(height: 6)
-
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(humidityBarColor)
-                                .frame(width: geo.size.width * CGFloat(plant.humidity) / 100, height: 6)
-                        }
-                    }
-                    .frame(height: 6)
-
-                    // Fila inferior: badge estado + acción + tiempo
-                    HStack(spacing: 8) {
-                        // Badge
-                        Text(badgeText)
-                            .font(.system(size: 11, weight: .semibold))
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
-                            .background(badgeBackground)
-                            .foregroundColor(badgeForeground)
-                            .cornerRadius(20)
-
-                        Spacer()
-
-                        if plant.status == .seco {
-                            Button(action: { withAnimation { watered.toggle() } }) {
-                                Text(watered ? "✓ Regada" : "Regar ahora")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 6)
-                                    .background(watered ? Color("StatusGreen") : Color("PlantDark"))
-                                    .foregroundColor(Color("PlantCream"))
-                                    .cornerRadius(20)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(plant.name)
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(Color("TextDark"))
+                                Text("\(plant.location) · \(sensorName)")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.gray)
                             }
-                        } else {
-                            Text(lastSeen)
-                                .font(.system(size: 11))
+                        }
+
+                        Spacer()
+
+                        // Indicador en vivo
+                        HStack(spacing: 4) {
+                            Circle()
+                                .fill(Color("StatusGreen"))
+                                .frame(width: 8, height: 8)
+                            Text("En vivo")
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(Color("StatusGreen"))
+                        }
+                    }
+
+                    // ── Métricas del sensor ──────────────────────────
+                    HStack(spacing: 8) {
+
+                        // Humedad
+                        VStack(spacing: 4) {
+                            Image(systemName: "drop.fill")
+                                .foregroundColor(.blue)
+                                .font(.system(size: 14))
+                            Text("\(humedadReal)")
+                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                                .foregroundColor(esSeco ? Color("StatusRed") : Color("StatusGreen"))
+                            Text("Humedad")
+                                .font(.system(size: 9))
                                 .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(esSeco ? Color("StatusRed").opacity(0.07) : Color.blue.opacity(0.07))
+                        .cornerRadius(12)
+
+                        // Temperatura
+                        VStack(spacing: 4) {
+                            Image(systemName: "thermometer.medium")
+                                .foregroundColor(.orange)
+                                .font(.system(size: 14))
+                            Text(String(format: "%.1f°", temperaturaReal))
+                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                                .foregroundColor(Color("TextDark"))
+                            Text("Temp °C")
+                                .font(.system(size: 9))
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(Color.orange.opacity(0.07))
+                        .cornerRadius(12)
+
+                        // Estado general
+                        VStack(spacing: 4) {
+                            Image(systemName: esSeco ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
+                                .foregroundColor(esSeco ? Color("StatusRed") : Color("StatusGreen"))
+                                .font(.system(size: 14))
+                            Text(esSeco ? "Seco" : "Bien")
+                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                                .foregroundColor(esSeco ? Color("StatusRed") : Color("StatusGreen"))
+                            Text("Estado")
+                                .font(.system(size: 9))
+                                .foregroundColor(.gray)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(esSeco ? Color("StatusRed").opacity(0.07) : Color("StatusGreen").opacity(0.07))
+                        .cornerRadius(12)
+                    }
+
+                    // ── Barra de humedad ─────────────────────────────
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack {
+                            Text("Nivel de humedad del suelo")
+                                .font(.system(size: 10))
+                                .foregroundColor(.gray)
+                            Spacer()
+                            Text(estadoHumedadReal)
+                                .font(.system(size: 10, weight: .semibold))
+                                .foregroundColor(esSeco ? Color("StatusRed") : Color("StatusGreen"))
+                        }
+
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(Color.gray.opacity(0.12))
+                                    .frame(height: 8)
+
+                                RoundedRectangle(cornerRadius: 4)
+                                    .fill(humidityBarColor)
+                                    .frame(
+                                        width: geo.size.width * min(CGFloat(humedadReal) / 100, 1.0),
+                                        height: 8
+                                    )
+                                    .animation(.easeInOut(duration: 0.5), value: humedadReal)
+                            }
+                        }
+                        .frame(height: 8)
+                    }
+
+                    // ── Estado temperatura ───────────────────────────
+                    HStack(spacing: 6) {
+                        Image(systemName: "thermometer.medium")
+                            .font(.system(size: 10))
+                            .foregroundColor(.orange)
+                        Text(estadoTempReal)
+                            .font(.system(size: 11))
+                            .foregroundColor(.orange)
+                        Spacer()
+                        Text(lastSeen)
+                            .font(.system(size: 10))
+                            .foregroundColor(.gray)
+                    }
+
+                    // ── Botón regar ──────────────────────────────────
+                    if esSeco {
+                        Button(action: { withAnimation { watered.toggle() } }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: watered ? "checkmark.circle.fill" : "drop.fill")
+                                Text(watered ? "✓ Regada" : "Regar ahora")
+                                    .font(.system(size: 13, weight: .bold))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(watered ? Color("StatusGreen") : Color("PlantDark"))
+                            .foregroundColor(Color("PlantCream"))
+                            .cornerRadius(20)
+                        }
+                    } else {
+                        // Badge estado ok
+                        HStack {
+                            Text("✅ Todo bien con \(plant.name)")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(Color("StatusGreen"))
+                            Spacer()
                         }
                     }
                 }
@@ -111,59 +194,28 @@ struct SensorCardView: View {
         .shadow(color: .black.opacity(0.06), radius: 5, x: 0, y: 2)
     }
 
-    // MARK: - Helpers de color
+    // MARK: - Colores
 
     private var barColor: Color {
-        switch plant.status {
-        case .seco:   return Color("StatusRed")
-        case .bien:   return Color("StatusGreen")
-        case .pronto: return Color("StatusBlue")
-        }
+        esSeco ? Color("StatusRed") : Color("StatusGreen")
     }
 
     private var humidityBarColor: Color {
-        if plant.humidity < 25 { return Color("StatusRed") }
-        if plant.humidity < 50 { return Color(hue: 0.1, saturation: 0.8, brightness: 0.85) }
+        if humedadReal < 25 { return Color("StatusRed") }
+        if humedadReal < 50 { return Color(hue: 0.1, saturation: 0.8, brightness: 0.85) }
         return Color("StatusGreen")
-    }
-
-    private var badgeText: String {
-        switch plant.status {
-        case .seco:   return "Tierra seca"
-        case .bien:   return "Humedad Ok"
-        case .pronto: return "Regar pronto"
-        }
-    }
-
-    private var badgeBackground: Color {
-        switch plant.status {
-        case .seco:   return Color("StatusRed").opacity(0.1)
-        case .bien:   return Color("StatusGreen").opacity(0.1)
-        case .pronto: return Color("StatusBlue").opacity(0.1)
-        }
-    }
-
-    private var badgeForeground: Color {
-        switch plant.status {
-        case .seco:   return Color("StatusRed")
-        case .bien:   return Color("StatusGreen")
-        case .pronto: return Color("StatusBlue")
-        }
     }
 }
 
 #Preview {
     VStack(spacing: 16) {
-        SensorCardView(plant: Plant(
-            name: "Pothos Dorado", location: "Sala",
-            status: .seco, hasSensor: true, emoji: "🪴",
-            humidity: 18
-        ))
-        SensorCardView(plant: Plant(
-            name: "Orquídea Rosa", location: "Recámara",
-            status: .bien, hasSensor: true, emoji: "🌺",
-            humidity: 62
-        ))
+        SensorCardView(
+            plant: Plant(
+                name: "Aguacate", location: "Jardín",
+                status: .seco, hasSensor: true, emoji: "🥑"
+            ),
+            sensorVM: PlantaViewModel()
+        )
     }
     .padding()
     .background(Color("BgLight"))

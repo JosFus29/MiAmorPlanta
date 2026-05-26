@@ -2,7 +2,8 @@ import SwiftUI
 
 struct CuidadosView: View {
 
-    @StateObject private var storage = PlantStorage.shared
+    @ObservedObject private var storage = PlantStorage.shared
+    @StateObject private var sensorVM = PlantaViewModel() // ← datos reales del ESP32
     @State private var showAddSensor = false
 
     private var withSensor: [Plant] {
@@ -19,7 +20,6 @@ struct CuidadosView: View {
 
             VStack(spacing: 0) {
 
-                // ── Header ───────────────────────────────────────────
                 headerSection
 
                 ScrollView(showsIndicators: false) {
@@ -29,10 +29,16 @@ struct CuidadosView: View {
                             emptyState
                                 .padding(.top, 60)
                         } else {
+
+                            // ── Tarjeta de datos en vivo del ESP32 ───
+                            if !withSensor.isEmpty {
+                                liveDataCard
+                            }
+
                             // Plantas con sensor
                             if !withSensor.isEmpty {
                                 ForEach(withSensor) { plant in
-                                    SensorCardView(plant: plant)
+                                    SensorCardView(plant: plant, sensorVM: sensorVM)
                                 }
                             }
 
@@ -49,7 +55,7 @@ struct CuidadosView: View {
                 }
             }
 
-            // ── Botón flotante ───────────────────────────────────────
+            // Botón flotante
             Button(action: { showAddSensor = true }) {
                 HStack(spacing: 8) {
                     Image(systemName: "plus")
@@ -70,7 +76,6 @@ struct CuidadosView: View {
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 12)
-
         }
         .navigationBarHidden(true)
         .alert("Próximamente", isPresented: $showAddSensor) {
@@ -80,10 +85,81 @@ struct CuidadosView: View {
         }
     }
 
+    // MARK: - Tarjeta de datos en vivo
+
+    private var liveDataCard: some View {
+        VStack(spacing: 12) {
+
+            // Título
+            HStack {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(Color("StatusGreen"))
+                        .frame(width: 8, height: 8)
+                    Text("Datos en vivo · ESP32")
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundColor(Color("StatusGreen"))
+                }
+                Spacer()
+                Text("Actualización automática")
+                    .font(.system(size: 10))
+                    .foregroundColor(.gray)
+            }
+
+            // Métricas
+            HStack(spacing: 10) {
+
+                // Humedad
+                VStack(spacing: 6) {
+                    Image(systemName: "drop.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(.blue)
+                    Text("\(sensorVM.humedadCruda)")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(Color("TextDark"))
+                    Text("Humedad")
+                        .font(.system(size: 10))
+                        .foregroundColor(.gray)
+                    Text(sensorVM.estadoHumedad)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.blue)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(Color.blue.opacity(0.06))
+                .cornerRadius(14)
+
+                // Temperatura
+                VStack(spacing: 6) {
+                    Image(systemName: "thermometer.medium")
+                        .font(.system(size: 18))
+                        .foregroundColor(.orange)
+                    Text(String(format: "%.1f°", sensorVM.temperatura))
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundColor(Color("TextDark"))
+                    Text("Temperatura")
+                        .font(.system(size: 10))
+                        .foregroundColor(.gray)
+                    Text(sensorVM.estadoTemperatura)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundColor(.orange)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(Color.orange.opacity(0.06))
+                .cornerRadius(14)
+            }
+        }
+        .padding(16)
+        .background(Color.white)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+    }
+
     // MARK: - Header
 
-    
-    // Reemplaza headerSection en CuidadosView
     private var headerSection: some View {
         ZStack {
             Color("PlantDark").ignoresSafeArea(edges: .top)
@@ -190,10 +266,7 @@ struct CuidadosView: View {
             }
         }
     }
-
-
 }
-
 
 #Preview {
     NavigationStack { CuidadosView() }

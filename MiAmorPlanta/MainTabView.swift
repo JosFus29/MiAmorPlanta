@@ -18,6 +18,13 @@ struct MainTabView: View {
             }
 
             NavigationStack {
+                SensoresView()  // ← nueva pestaña
+            }
+            .tabItem {
+                Label("Sensores", systemImage: "antenna.radiowaves.left.and.right")
+            }
+
+            NavigationStack {
                 AlertasView()
             }
             .tabItem {

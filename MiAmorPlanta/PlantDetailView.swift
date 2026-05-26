@@ -4,6 +4,7 @@ struct PlantDetailView: View {
     let plant: Plant
     @Environment(\.dismiss) private var dismiss
     @ObservedObject private var storage = PlantStorage.shared
+    @StateObject private var sensorVM = PlantaViewModel() // ← datos reales del ESP32
     @State private var marked = false
 
     var body: some View {
@@ -12,25 +13,23 @@ struct PlantDetailView: View {
 
             VStack(spacing: 0) {
 
-                // ── Header verde ─────────────────────────────────────
                 headerSection
 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
 
-                        // Alerta sensor
+                        // Alerta sensor con datos reales
                         if plant.hasSensor {
                             sensorBanner
                                 .padding(.horizontal, 20)
                                 .padding(.top, 20)
                         }
 
-                        // Stats cards
+                        // Stats con datos reales
                         statsSection
                             .padding(.horizontal, 20)
                             .padding(.top, plant.hasSensor ? 0 : 20)
 
-                        // Cuidados programados
                         careSection
                             .padding(.horizontal, 20)
 
@@ -39,8 +38,8 @@ struct PlantDetailView: View {
                 }
             }
 
-            // ── Botón flotante ───────────────────────────────────────
-            Button(action: { markAsWatered () }) {
+            // Botón flotante
+            Button(action: { markAsWatered() }) {
                 HStack(spacing: 8) {
                     Image(systemName: marked ? "checkmark.circle.fill" : "drop.fill")
                     Text(marked ? "¡Regada! 💧" : "Marcar como regada")
@@ -58,11 +57,11 @@ struct PlantDetailView: View {
         }
         .navigationBarHidden(true)
     }
+
     // MARK: - Acción regar
 
     private func markAsWatered() {
         withAnimation { marked.toggle() }
-
         if marked {
             var updated = plant
             updated.status = .bien
@@ -78,7 +77,6 @@ struct PlantDetailView: View {
             Color("PlantDark").ignoresSafeArea(edges: .top)
 
             VStack(spacing: 6) {
-                // Back
                 HStack {
                     Button(action: { dismiss() }) {
                         HStack(spacing: 4) {
@@ -110,35 +108,50 @@ struct PlantDetailView: View {
         .frame(maxHeight: 200)
     }
 
-    // MARK: - Banner sensor
+    // MARK: - Banner sensor (datos reales del ESP32)
 
     private var sensorBanner: some View {
-        HStack(spacing: 10) {
+        // Si la planta tiene sensor, usa datos de Firebase; si no, usa los locales
+        let humedad = plant.hasSensor ? sensorVM.humedadCruda : plant.humidity
+        let estadoHumedad = plant.hasSensor ? sensorVM.estadoHumedad : (plant.status == .seco ? "Tierra seca" : "Niveles normales")
+        let esSeco = plant.hasSensor ? sensorVM.humedadCruda < 30 : plant.status == .seco
+
+        return HStack(spacing: 10) {
             Text("💧")
                 .font(.system(size: 20))
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Sensor IoT activo")
                     .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(Color(plant.status == .seco ? "StatusRed" : "StatusGreen"))
+                    .foregroundColor(Color(esSeco ? "StatusRed" : "StatusGreen"))
 
-                Text("Humedad: \(plant.humidity)% · \(plant.status == .seco ? "Tierra seca" : "Niveles normales")")
+                Text("Humedad: \(humedad) · \(estadoHumedad)")
                     .font(.system(size: 12))
                     .foregroundColor(.gray)
             }
 
             Spacer()
+
+            // Indicador de conexión
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(Color("StatusGreen"))
+                    .frame(width: 8, height: 8)
+                Text("En vivo")
+                    .font(.system(size: 10))
+                    .foregroundColor(.gray)
+            }
         }
         .padding(14)
         .background(
-            plant.status == .seco
+            esSeco
                 ? Color("StatusRed").opacity(0.08)
                 : Color("StatusGreen").opacity(0.08)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 14)
                 .stroke(
-                    plant.status == .seco
+                    esSeco
                         ? Color("StatusRed").opacity(0.3)
                         : Color("StatusGreen").opacity(0.3),
                     lineWidth: 1
@@ -147,19 +160,21 @@ struct PlantDetailView: View {
         .cornerRadius(14)
     }
 
-    // MARK: - Stats
+    // MARK: - Stats (datos reales del ESP32)
 
     private var statsSection: some View {
         HStack(spacing: 10) {
             if plant.hasSensor {
+                // Temperatura real del sensor
                 StatDetail(
-                    value: "\(Int(plant.temperature))°C",
+                    value: String(format: "%.1f°C", sensorVM.temperatura),
                     label: "Temp",
                     icon: "thermometer.medium",
                     color: "StatusRed"
                 )
+                // Humedad real del sensor
                 StatDetail(
-                    value: "\(plant.humidity)%",
+                    value: "\(sensorVM.humedadCruda)",
                     label: "Humedad",
                     icon: "drop.fill",
                     color: "StatusBlue"
@@ -274,7 +289,6 @@ private struct CareRow: View {
     }
 }
 
-
 #Preview {
     NavigationStack {
         PlantDetailView(plant: Plant(
@@ -292,6 +306,4 @@ private struct CareRow: View {
             daysUntilWatering: 3
         ))
     }
-    
 }
-
