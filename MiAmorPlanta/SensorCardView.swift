@@ -8,11 +8,10 @@ struct SensorCardView: View {
     init(plant: Plant) {
         self.plant = plant
         _sensorVM = StateObject(
-            wrappedValue: PlantaViewModel(plantId:plantID: plant.id.uuidString) // ← temporal
+            wrappedValue: PlantaViewModel(plantId: plant.id.uuidString)
         )
     }
 
-    // Datos reales del sensor
     private var humedadReal: Int { sensorVM.humedadCruda }
     private var temperaturaReal: Double { sensorVM.temperatura }
     private var estadoHumedadReal: String { sensorVM.estadoHumedad }
@@ -27,7 +26,6 @@ struct SensorCardView: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
 
-                // Barra lateral
                 RoundedRectangle(cornerRadius: 3)
                     .fill(barColor)
                     .frame(width: 5)
@@ -53,20 +51,20 @@ struct SensorCardView: View {
 
                         Spacer()
 
+                        // Indicador en vivo — usa cargando en lugar de isConnected
                         HStack(spacing: 4) {
                             Circle()
-                                .fill(sensorVM.isConnected ? Color("StatusGreen") : Color.gray)
+                                .fill(sensorVM.cargando ? Color.gray : Color("StatusGreen"))
                                 .frame(width: 8, height: 8)
-                            Text(sensorVM.isConnected ? "En vivo" : "Conectando...")
+                            Text(sensorVM.cargando ? "Conectando..." : "En vivo")
                                 .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(sensorVM.isConnected ? Color("StatusGreen") : .gray)
+                                .foregroundColor(sensorVM.cargando ? .gray : Color("StatusGreen"))
                         }
                     }
 
-                    // ── Métricas del sensor ──────────────────────────
+                    // ── Métricas ─────────────────────────────────────
                     HStack(spacing: 8) {
 
-                        // Humedad
                         VStack(spacing: 4) {
                             Image(systemName: "drop.fill")
                                 .foregroundColor(.blue)
@@ -83,7 +81,6 @@ struct SensorCardView: View {
                         .background(esSeco ? Color("StatusRed").opacity(0.07) : Color.blue.opacity(0.07))
                         .cornerRadius(12)
 
-                        // Temperatura
                         VStack(spacing: 4) {
                             Image(systemName: "thermometer.medium")
                                 .foregroundColor(.orange)
@@ -100,7 +97,6 @@ struct SensorCardView: View {
                         .background(Color.orange.opacity(0.07))
                         .cornerRadius(12)
 
-                        // Estado general
                         VStack(spacing: 4) {
                             Image(systemName: esSeco ? "exclamationmark.triangle.fill" : "checkmark.circle.fill")
                                 .foregroundColor(esSeco ? Color("StatusRed") : Color("StatusGreen"))
@@ -135,7 +131,6 @@ struct SensorCardView: View {
                                 RoundedRectangle(cornerRadius: 4)
                                     .fill(Color.gray.opacity(0.12))
                                     .frame(height: 8)
-
                                 RoundedRectangle(cornerRadius: 4)
                                     .fill(humidityBarColor)
                                     .frame(
@@ -194,8 +189,6 @@ struct SensorCardView: View {
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.06), radius: 5, x: 0, y: 2)
     }
-
-    // MARK: - Colores
 
     private var barColor: Color {
         esSeco ? Color("StatusRed") : Color("StatusGreen")

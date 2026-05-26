@@ -3,7 +3,10 @@ import SwiftUI
 struct CuidadosView: View {
 
     @ObservedObject private var storage = PlantStorage.shared
-    //@StateObject private var sensorVM = PlantaViewModel() // ← datos reales del ESP32
+    @StateObject private var sensorVM: PlantaViewModel = {
+        let id = PlantStorage.shared.plants.first(where: { $0.hasSensor })?.id.uuidString
+        return PlantaViewModel(plantId: id)
+    }()
     @State private var showAddSensor = false
 
     private var withSensor: [Plant] {
@@ -30,16 +33,14 @@ struct CuidadosView: View {
                                 .padding(.top, 60)
                         } else {
 
-                            // ── Tarjeta de datos en vivo del ESP32 ───
-                            /*if !withSensor.isEmpty {
+                            // Tarjeta resumen en vivo
+                            if !withSensor.isEmpty {
                                 liveDataCard
-                            }*/
+                            }
 
                             // Plantas con sensor
-                            if !withSensor.isEmpty {
-                                ForEach(withSensor) { plant in
-                                    SensorCardView(plant: plant/*, sensorVM: sensorVM*/)
-                                }
+                            ForEach(withSensor) { plant in
+                                SensorCardView(plant: plant/*, sensorVM: sensorVM*/)
                             }
 
                             // Plantas sin sensor
@@ -85,20 +86,18 @@ struct CuidadosView: View {
         }
     }
 
-    // MARK: - Tarjeta de datos en vivo
+    // MARK: - Tarjeta en vivo
 
-    /*private var liveDataCard: some View {
+    private var liveDataCard: some View {
         VStack(spacing: 12) {
-
-            // Título
             HStack {
                 HStack(spacing: 6) {
                     Circle()
-                        .fill(Color("StatusGreen"))
+                        .fill(sensorVM.cargando ? Color.gray : Color("StatusGreen"))
                         .frame(width: 8, height: 8)
-                    Text("Datos en vivo · ESP32")
+                    Text(sensorVM.cargando ? "Conectando..." : "Datos en vivo · ESP32")
                         .font(.system(size: 12, weight: .bold))
-                        .foregroundColor(Color("StatusGreen"))
+                        .foregroundColor(sensorVM.cargando ? .gray : Color("StatusGreen"))
                 }
                 Spacer()
                 Text("Actualización automática")
@@ -106,15 +105,13 @@ struct CuidadosView: View {
                     .foregroundColor(.gray)
             }
 
-            // Métricas
             HStack(spacing: 10) {
-
                 // Humedad
                 VStack(spacing: 6) {
                     Image(systemName: "drop.fill")
                         .font(.system(size: 18))
                         .foregroundColor(.blue)
-                    Text("\(sensorVM.humedadCruda)")
+                    Text(sensorVM.cargando ? "--" : "\(sensorVM.humedadCruda)")
                         .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(Color("TextDark"))
                     Text("Humedad")
@@ -135,7 +132,7 @@ struct CuidadosView: View {
                     Image(systemName: "thermometer.medium")
                         .font(.system(size: 18))
                         .foregroundColor(.orange)
-                    Text(String(format: "%.1f°", sensorVM.temperatura))
+                    Text(sensorVM.cargando ? "--" : String(format: "%.1f°", sensorVM.temperatura))
                         .font(.system(size: 24, weight: .bold, design: .rounded))
                         .foregroundColor(Color("TextDark"))
                     Text("Temperatura")
@@ -156,7 +153,7 @@ struct CuidadosView: View {
         .background(Color.white)
         .cornerRadius(16)
         .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
-    }*/
+    }
 
     // MARK: - Header
 
@@ -222,7 +219,7 @@ struct CuidadosView: View {
         .frame(maxWidth: .infinity)
     }
 
-    // MARK: - Banner plantas sin sensor
+    // MARK: - Banner sin sensor
 
     private var noSensorBanner: some View {
         VStack(alignment: .leading, spacing: 10) {
