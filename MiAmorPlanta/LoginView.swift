@@ -6,9 +6,10 @@ struct LoginView: View {
 
     @State private var email = ""
     @State private var password = ""
-    @State private var showToast = false
-    @State private var toastMessage = ""
-    @State private var isError = false
+
+    // Errores por campo
+    @State private var emailError: String?    = nil
+    @State private var passwordError: String? = nil
 
     var body: some View {
         ZStack {
@@ -40,24 +41,26 @@ struct LoginView: View {
                     label: "Correo",
                     placeholder: "hola@miplanta.com",
                     text: $email,
-                    isSecure: false
+                    isSecure: false,
+                    errorMessage: emailError
                 )
                 .padding(.bottom, 16)
+                .onChange(of: email) { _ in emailError = nil }
 
                 PlantTextField(
                     label: "Contraseña",
                     placeholder: "••••••••",
                     text: $password,
-                    isSecure: true
+                    isSecure: true,
+                    errorMessage: passwordError
                 )
                 .padding(.bottom, 28)
+                .onChange(of: password) { _ in passwordError = nil }
 
-                // Botón login
                 Button(action: handleLogin) {
                     Group {
                         if auth.isLoading {
-                            ProgressView()
-                                .tint(.white)
+                            ProgressView().tint(.white)
                         } else {
                             Text("Entrar")
                                 .font(.system(size: 16, weight: .semibold))
@@ -91,59 +94,47 @@ struct LoginView: View {
             }
             .padding(.horizontal, 28)
             .padding(.top, 24)
-
-            // Toast
-            if showToast {
-                VStack {
-                    Spacer()
-                    Text(toastMessage)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 10)
-                        .background(isError ? Color.red.opacity(0.85) : Color("PlantAccent"))
-                        .cornerRadius(20)
-                        .padding(.bottom, 32)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-            }
         }
         .navigationBarHidden(true)
-        .animation(.easeInOut(duration: 0.3), value: showToast)
     }
 
     // MARK: - Lógica
 
     private func handleLogin() {
-        guard !email.isEmpty, !password.isEmpty else {
-            showError("Llena todos los campos")
+        emailError    = nil
+        passwordError = nil
+
+        // Validaciones locales primero
+        guard !email.isEmpty else {
+            emailError = "Ingresa tu correo"
+            return
+        }
+        guard email.contains("@") else {
+            emailError = "El correo no tiene un formato válido"
+            return
+        }
+        guard !password.isEmpty else {
+            passwordError = "Ingresa tu contraseña"
             return
         }
 
         auth.login(email: email, password: password) { success in
-            if success {
-                showSuccess("¡Bienvenida de vuelta! 🌿")
-            } else {
-                showError(auth.errorMessage)
+            if !success {
+                mapFirebaseError(auth.errorMessage)
             }
         }
     }
 
-    private func showError(_ message: String) {
-        isError = true
-        toastMessage = message
-        withAnimation { showToast = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            withAnimation { showToast = false }
-        }
-    }
-
-    private func showSuccess(_ message: String) {
-        isError = false
-        toastMessage = message
-        withAnimation { showToast = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            withAnimation { showToast = false }
+    /// Traduce el error de Firebase al campo correcto
+    private func mapFirebaseError(_ message: String) {
+        let msg = message.lowercased()
+        if msg.contains("correo") || msg.contains("existe") || msg.contains("válido") {
+            emailError = message
+        } else if msg.contains("contraseña") || msg.contains("incorrecta") {
+            passwordError = message
+        } else {
+            // Error genérico: lo ponemos en correo
+            emailError = message
         }
     }
 }

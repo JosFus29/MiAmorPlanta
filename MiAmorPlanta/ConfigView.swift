@@ -87,12 +87,6 @@ struct ConfigView: View {
                             }
                         }
 
-                        // Sensores IoT
-                        sectionCard(title: "Sensores IoT") {
-                            thresholdRow(label: "Umbral de alerta", value: $umbralAlerta)
-                            Divider()
-                            infoRow(label: "Frecuencia lecturas", value: "30 min")
-                        }
 
                         // Cuenta
                         sectionCard(title: "Cuenta") {
