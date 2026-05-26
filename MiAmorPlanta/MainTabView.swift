@@ -11,6 +11,13 @@ struct MainTabView: View {
             }
 
             NavigationStack {
+                ExplorarView()
+            }
+            .tabItem {
+                Label("Explorar", systemImage: "magnifyingglass")
+            }
+
+            NavigationStack {
                 CuidadosView()
             }
             .tabItem {
@@ -18,7 +25,7 @@ struct MainTabView: View {
             }
 
             NavigationStack {
-                SensoresView()  // ← nueva pestaña
+                SensoresView()
             }
             .tabItem {
                 Label("Sensores", systemImage: "antenna.radiowaves.left.and.right")
